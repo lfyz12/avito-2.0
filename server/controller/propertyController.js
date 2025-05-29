@@ -1,6 +1,7 @@
 const { Property, User } = require('../models/models');
 const ApiError = require('../error/ApiError');
-
+const {Op} = require("sequelize");
+const {db} = require('sequelize')
 class PropertyController {
     // Создание нового объекта недвижимости
     async create(req, res, next) {
@@ -39,10 +40,65 @@ class PropertyController {
     // Получение всех объектов недвижимости
     async getAll(req, res, next) {
         try {
-            const properties = await Property.findAll({
-                include: [{ model: User, as: 'owner', attributes: ['id', 'email', 'name', 'avatar'] }],
+            // Параметры пагинации
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 12;
+            const offset = (page - 1) * limit;
+
+            // Параметры сортировки
+            const sortBy = req.query.sortBy || 'createdAt';
+            const sortOrder = req.query.sortOrder || 'DESC';
+            const validSortFields = ['price', 'createdAt', 'area', 'rooms'];
+            const order = validSortFields.includes(sortBy)
+                ? [[sortBy, sortOrder]]
+                : [['createdAt', 'DESC']];
+
+            // Параметры фильтрации
+            const where = {};
+            if (req.query.minPrice) where.price = { [Op.gte]: parseFloat(req.query.minPrice) };
+            if (req.query.maxPrice) where.price = { ...where.price, [Op.lte]: parseFloat(req.query.maxPrice) };
+            if (req.query.type) where.type = req.query.type;
+            if (req.query.rooms) where.rooms = req.query.rooms;
+            if (req.query.location) where.location = { [Op.iLike]: `%${req.query.location}%` };
+
+            // Если есть фильтр по удобствам
+            if (req.query.amenities) {
+                const amenities = Array.isArray(req.query.amenities)
+                    ? req.query.amenities
+                    : [req.query.amenities];
+
+                where[Op.and] = amenities.map(amenity => ({
+                    amenities: { [Op.contains]: [amenity] }
+                }));
+            }
+
+            // Получаем данные с пагинацией
+            const { count, rows } = await Property.findAndCountAll({
+                where,
+                include: [{
+                    model: User,
+                    as: 'owner',
+                    attributes: ['id', 'email', 'name', 'phone', 'avatar']
+                }],
+                order,
+                limit,
+                offset
             });
-            return res.json(properties);
+
+            // Рассчитываем общее количество страниц
+            const totalPages = Math.ceil(count / limit);
+
+            return res.json({
+                properties: rows,
+                pagination: {
+                    currentPage: page,
+                    totalPages,
+                    totalItems: count,
+                    itemsPerPage: limit,
+                    hasNextPage: page < totalPages,
+                    hasPrevPage: page > 1
+                }
+            });
         } catch (e) {
             next(ApiError.badRequest(e.message));
         }
@@ -54,7 +110,7 @@ class PropertyController {
             const { id } = req.params;
 
             const property = await Property.findByPk(id, {
-                include: [{ model: User, as: 'owner', attributes: ['id', 'email', 'name', 'avatar'] }],
+                include: [{ model: User, as: 'owner', attributes: ['id', 'email', 'name', 'phone', 'avatar'] }],
             });
 
             if (!property) return next(ApiError.badRequest('Объект не найден'));
@@ -110,7 +166,7 @@ class PropertyController {
 
             const properties = await Property.findAll({
                 where: { ownerId: userId },
-                include: [{ model: User, as: 'owner', attributes: ['id', 'email', 'name', 'avatar'] }],
+                include: [{ model: User, as: 'owner', attributes: ['id', 'email', 'name', 'phone', 'avatar'] }],
             });
 
             return res.json(properties);
@@ -118,6 +174,9 @@ class PropertyController {
             next(ApiError.badRequest(e.message));
         }
     }
+
+
+
 }
 
 module.exports = new PropertyController();

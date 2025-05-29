@@ -18,6 +18,11 @@ const User = sequelize.define('User', {
         unique: true,
         allowNull: false,
     },
+    phone: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+    },
     password: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -63,6 +68,22 @@ const Property = sequelize.define('Property', {
     },
     amenities: DataTypes.ARRAY(DataTypes.STRING),
     photos: DataTypes.ARRAY(DataTypes.STRING),
+})
+
+const Like = sequelize.define('Like', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+    }
+})
+
+const LikeProperties = sequelize.define('LikeProperties', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+    }
 })
 
 const Booking = sequelize.define('Booking', {
@@ -121,10 +142,34 @@ const Agreement = sequelize.define('Agreement', {
     updatedAt: false, // договор не редактируется
 });
 
+const Chat = sequelize.define('Chat', {
+    id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+    user1Id: DataTypes.INTEGER,
+    user2Id: DataTypes.INTEGER,
+});
+
+Chat.hasMany(Message, { foreignKey: 'chatId' });
+Message.belongsTo(Chat, { foreignKey: 'chatId' });
+
+Chat.belongsTo(User, { as: "user1", foreignKey: "user1Id" });
+Chat.belongsTo(User, { as: "user2", foreignKey: "user2Id" });
+
 // Property — владелец
 User.hasMany(Property, { foreignKey: 'ownerId' });
 Property.belongsTo(User, { as: 'owner', foreignKey: 'ownerId' });
 
+User.hasMany(Like, { foreignKey: 'userId' });
+Like.belongsTo(User, { as: 'user', foreignKey: 'userId' });
+
+Like.hasMany(LikeProperties, { foreignKey: 'likeId' });
+LikeProperties.belongsTo(Like, { as: 'like', foreignKey: 'likeId' });
+
+Property.hasMany(LikeProperties, { foreignKey: 'propertyId' });
+LikeProperties.belongsTo(Property, {as: 'property', foreignKey: 'propertyId' });
 // Booking — клиент и объект
 User.hasMany(Booking, { foreignKey: 'userId' });
 Booking.belongsTo(User, { as: 'client', foreignKey: 'userId' });
@@ -151,5 +196,5 @@ Message.belongsTo(User, { as: 'sender', foreignKey: 'fromUserId' });
 Message.belongsTo(User, { as: 'receiver', foreignKey: 'toUserId' });
 
 module.exports = {
-    User, Property, Token, Review, Message, Booking, Agreement
+    User, Property, Token, Review, Message, Booking, Agreement, Like, LikeProperties
 }

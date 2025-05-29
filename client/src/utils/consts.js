@@ -1,6 +1,6 @@
 export const HOMEROUTER = '/'
 export const CATALOGROUTER = '/catalog'
-export const PRODUCTROUTER = '/catalog'
+export const PROPERTYROUTER = '/property'
 export const ABOUTROUTER = '/about'
 export const  CONTACTROUTER= '/contact'
 export const  LOGINROUTER= '/login'

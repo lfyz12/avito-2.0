@@ -23,4 +23,5 @@ router.delete('/:id', authMiddleware, PropertyController.delete);
 // Получение объектов текущего пользователя (требует аутентификации)
 router.get('/my/properties', authMiddleware, PropertyController.getMyProperties);
 
+
 module.exports = router;

@@ -10,11 +10,26 @@ function App() {
     const { userStore } = useContext(Context);
 
     useEffect(() => {
-        userStore.refresh(); // Проверка авторизации
+        const checkAuth = async () => {
+            try {
+
+                await userStore.refresh();
+            } catch (error) {
+
+                console.log('Пользователь не авторизован');
+            }
+        };
+
+
+        if (localStorage.getItem('accessToken')) {
+            checkAuth();
+        } else {
+            userStore.setAuth(false);
+        }
     }, [userStore]);
 
     if (userStore.isLoading) {
-        return <div>Загрузка...</div>; // Показать индикатор загрузки
+        return <div>Загрузка...</div>;
     }
   return (
     <BrowserRouter>

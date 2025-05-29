@@ -2,8 +2,8 @@ import { $authHost } from "../http/http";
 
 const BookingService = {
     // Создание бронирования
-    async create(bookingData) {
-        return await $authHost.post('/api/booking', bookingData);
+    async create( propertyId, startDate, endDate, totalPrice) {
+        return await $authHost.post('/api/booking', { propertyId, startDate, endDate, totalPrice});
     },
 
     // Получение всех бронирований (для админа/аналитика)

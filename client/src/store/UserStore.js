@@ -60,11 +60,11 @@ export default class UserStore {
     }
 
     // Методы работы с API
-    async registration(email, password, name, role) {
+    async registration(email, password, name, role, phone) {
         this.setLoading(true);
         this.setError(null);
         try {
-            const data = await UserService.registration(email, password, name, role);
+            const data = await UserService.registration(email, password, name, role, phone);
             localStorage.setItem('accessToken', data.tokens.accessToken);
             runInAction(() => {
                 this.setUser(data.user);
@@ -98,23 +98,6 @@ export default class UserStore {
         }
     }
 
-    async logout() {
-        this.setLoading(true);
-        this.setError(null);
-        try {
-            await UserService.logout();
-            runInAction(() => {
-                this.setUser(null);
-                this.setAuth(false);
-            });
-        } catch (error) {
-            this.setError(error.response?.data?.message || error.message);
-            throw error;
-        } finally {
-            this.setLoading(false);
-        }
-    }
-
     async refresh() {
         this.setLoading(true);
         try {
@@ -126,18 +109,48 @@ export default class UserStore {
             });
             return data;
         } catch (error) {
-            await this.logout();
-            throw error;
+            // Ошибка при обновлении токена - не критичная
+            console.warn('Ошибка при обновлении токена:', error);
+            // Очищаем состояние аутентификации
+            runInAction(() => {
+                this.setUser(null);
+                this.setAuth(false);
+            });
+            // Удаляем токен на всякий случай
+            localStorage.removeItem('accessToken');
+            // Не устанавливаем ошибку в состояние, чтобы не показывать пользователю
         } finally {
             this.setLoading(false);
         }
     }
 
-    async updateProfile(profile) {
+    async logout() {
+        this.setLoading(true);
+        try {
+            await UserService.logout();
+        } catch (error) {
+            // Ошибка при выходе - не критичная
+            console.warn('Ошибка при выходе:', error);
+        } finally {
+            // Всегда очищаем состояние
+            localStorage.removeItem('accessToken');
+            runInAction(() => {
+                this.setUser(null);
+                this.setAuth(false);
+                this.setError(null); // Очищаем предыдущие ошибки
+            });
+            this.setLoading(false);
+        }
+    }
+
+    // ... остальные методы ...
+
+
+    async updateProfile(userData) {
         this.setLoading(true);
         this.setError(null);
         try {
-            const data = await UserService.updateProfile(profile);
+            const data = await UserService.updateProfile(userData);
             runInAction(() => {
                 this.setUser(data);
             });

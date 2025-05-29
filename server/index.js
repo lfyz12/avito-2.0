@@ -10,7 +10,7 @@ const errorHandler = require('./middlewares/errorMiddleware') //Инициали
 const path = require('path')
 const cookieParser = require('cookie-parser')
 // const webSocketController = require('./webSockets/webSocketController')
-
+const initWebSocket = require('./controller/initWebSocket');
 
 const corsOptions ={
     origin: 'http://localhost:3000',

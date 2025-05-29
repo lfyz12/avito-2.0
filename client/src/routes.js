@@ -1,7 +1,8 @@
-import {HOMEROUTER, LOGINROUTER, PROFILEROUTER, REGISTERROUTER} from "./utils/consts";
+import {HOMEROUTER, LOGINROUTER, PROFILEROUTER, PROPERTYROUTER, REGISTERROUTER} from "./utils/consts";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
+import PropertyPage from "./pages/PropertyPage";
 
 
 export const publicRoutes = [
@@ -13,15 +14,28 @@ export const publicRoutes = [
         path: REGISTERROUTER,
         element: <Auth />
     },
-]
-
-export const authRoutes = [
     {
         path: HOMEROUTER,
         element: <Home/>
     },
     {
-        path: PROFILEROUTER,
+        path: PROPERTYROUTER + '/:id',
+        element: <PropertyPage/>
+    },
+]
+
+export const authRoutes = [
+
+    {
+        path: PROFILEROUTER + '/:tab',
+        element: <Profile/>
+    },
+    {
+        path: PROFILEROUTER + '/:tab',
+        element: <Profile/>
+    },
+    {
+        path: PROFILEROUTER + '/:tab',
         element: <Profile/>
     },
 ]

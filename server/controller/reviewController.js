@@ -38,7 +38,7 @@ class ReviewController {
                 include: {
                     model: User,
                     as: 'author',
-                    attributes: ['id', 'name', 'email'],
+                    attributes: ['id', 'name', 'phone', 'email', 'avatar'],
                 },
                 order: [['createdAt', 'DESC']],
             });

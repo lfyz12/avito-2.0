@@ -2,8 +2,8 @@ import { $host, $authHost } from '../http/http';
 
 const UserService = {
     // Регистрация
-    async registration(email, password, name, role) {
-        const { data } = await $host.post('/api/user/registration', { email, password, name, role });
+    async registration(email, password, name, role, phone) {
+        const { data } = await $authHost.post('/api/user/registration', { email, password, name, role, phone });
         return data;
     },
 
@@ -26,8 +26,16 @@ const UserService = {
     },
 
     // Обновление профиля (имя и/или аватар)
-    async updateProfile({ name, avatar }) {
-        const { data } = await $authHost.put('/api/user/profile', { name, avatar });
+    async updateProfile(userData) {
+        const formData = new FormData();
+        console.log(formData, userData, "PROVERKA111")
+        formData.append('avatar', userData);
+        console.log(formData.get('avatar'), userData, "PROVERKA222")
+        const { data } = await $authHost.put('/api/user/profile', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return data;
     },
 

@@ -1,0 +1,56 @@
+/* Стили для основной галереи */
+.property-main-swiper {
+    height: 500px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+/* Стили для миниатюр */
+.property-thumbs-swiper {
+    height: 100px;
+    padding: 8px 0;
+}
+
+/* Навигационные кнопки */
+.swiper-button-next,
+.swiper-button-prev {
+    color: white;
+    background: rgba(0, 0, 0, 0.5);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.swiper-button-next:after,
+.swiper-button-prev:after {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Адаптивные стили */
+@media (max-width: 1024px) {
+    .property-main-swiper {
+        height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .property-main-swiper {
+        height: 300px;
+    }
+
+    .property-thumbs-swiper {
+        height: 80px;
+    }
+}
+
+@media (max-width: 640px) {
+    .property-main-swiper {
+        height: 250px;
+    }
+
+    .property-thumbs-swiper {
+        height: 60px;
+    }
+}

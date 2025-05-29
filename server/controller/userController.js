@@ -1,28 +1,32 @@
-const { User } = require('../models/models');
+const { User, Like} = require('../models/models');
 const ApiError = require('../error/ApiError');
 const bcrypt = require('bcrypt');
 const tokenService = require('../service/tokenService'); // ты должен реализовать tokenService
 const { validationResult } = require('express-validator');
+const uuid = require('uuid')
+const multer = require('multer');
+const path = require('path');
 
 class UserController {
     async registration(req, res, next) {
         try {
-            const { email, password, name, role } = req.body;
+            const { email, password, name, role, phone } = req.body;
 
             const candidate = await User.findOne({ where: { email } });
             if (candidate) return next(ApiError.badRequest('Пользователь с таким email уже существует'));
 
             const hashPassword = await bcrypt.hash(password, 10);
-            const user = await User.create({ email, password: hashPassword, name, role, avatar: null });
+            const user = await User.create({ email, phone, password: hashPassword, name, role, avatar: null });
 
-            const tokens = tokenService.generateTokens({ id: user.id, email: user.email, role: user.role });
+            // Создание Like для пользователя
+            await Like.create({ userId: user.id });
+
+            const tokens = tokenService.generateTokens({ id: user.id, email: user.email, phone: user.phone, role: user.role });
             await tokenService.saveToken(user.id, tokens.refreshToken);
 
             res.cookie('refreshToken', tokens.refreshToken, {
                 maxAge: 10 * 24 * 60 * 60 * 1000,
                 httpOnly: true,
-                // sameSite: 'none',
-                // secure: true,
             });
 
             return res.json({ user, tokens });
@@ -40,7 +44,7 @@ class UserController {
             const isPassValid = await bcrypt.compare(password, user.password);
             if (!isPassValid) return next(ApiError.badRequest('Неверный пароль'));
 
-            const tokens = tokenService.generateTokens({ id: user.id, email: user.email, role: user.role });
+            const tokens = tokenService.generateTokens({ id: user.id, email: user.email, phone: user.phone, role: user.role });
             await tokenService.saveToken(user.id, tokens.refreshToken);
 
             res.cookie('refreshToken', tokens.refreshToken, {
@@ -92,7 +96,7 @@ class UserController {
             if (!userData || !tokenFromDb) return next(ApiError.unauthorized('Токен недействителен'));
 
             const user = await User.findByPk(userData.id);
-            const tokens = tokenService.generateTokens({ id: user.id, email: user.email, role: user.role });
+            const tokens = tokenService.generateTokens({ id: user.id, email: user.email, phone: user.phone, role: user.role });
             await tokenService.saveToken(user.id, tokens.refreshToken);
 
             res.cookie('refreshToken', tokens.refreshToken, {
@@ -110,10 +114,15 @@ class UserController {
 
     async updateProfile(req, res, next) {
         try {
-            const userId = req.user.id; // предполагается, что middleware уже достал из токена
-            const { name, avatar } = req.body;
+            const userId = req.user.id;
+            const updateData = {};
 
-            await User.update({ name, avatar }, { where: { id: userId } });
+            // Если загружен файл
+            if (req.file) {
+                updateData.avatar = req.file.filename; // Сохраняем только имя файла
+            }
+
+            await User.update(updateData, { where: { id: userId } });
             const updatedUser = await User.findByPk(userId);
 
             return res.json(updatedUser);
@@ -121,6 +130,8 @@ class UserController {
             next(ApiError.badRequest(e.message));
         }
     }
+
+
 
     async getAll(req, res, next) {
         try {

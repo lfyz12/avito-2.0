@@ -31,7 +31,7 @@ class BookingController {
         try {
             const bookings = await Booking.findAll({
                 include: [
-                    { model: User, as: 'client', attributes: ['id', 'email', 'name'] },
+                    { model: User, as: 'client', attributes: ['id', 'email', 'phone', 'name', 'avatar'] },
                     { model: Property },
                 ],
             });
@@ -49,7 +49,7 @@ class BookingController {
 
             const booking = await Booking.findByPk(id, {
                 include: [
-                    { model: User, as: 'client', attributes: ['id', 'email', 'name'] },
+                    { model: User, as: 'client', attributes: ['id', 'email', 'phone', 'name', 'avatar'] },
                     { model: Property },
                 ],
             });
@@ -89,7 +89,7 @@ class BookingController {
             const bookings = await Booking.findAll({
                 where: { propertyId: propertyIds },
                 include: [
-                    { model: User, as: 'client', attributes: ['id', 'email', 'name'] },
+                    { model: User, as: 'client', attributes: ['id', 'email', 'phone', 'name', 'avatar'] },
                     { model: Property },
                 ],
             });

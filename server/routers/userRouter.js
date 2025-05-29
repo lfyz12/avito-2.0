@@ -1,6 +1,7 @@
 const Router = require('express');
 const UserController = require('../controller/userController');
-const authMiddleware = require('../middlewares/authMiddleware'); // Если будет нужно
+const authMiddleware = require('../middlewares/authMiddleware');
+const upload = require("../middlewares/upload"); // Если будет нужно
 
 const router = new Router();
 
@@ -20,7 +21,7 @@ router.get('/check', UserController.checkAuth);
 router.get('/refresh', UserController.refresh);
 
 // Обновление профиля
-router.put('/profile', authMiddleware, UserController.updateProfile);
+router.put('/profile', authMiddleware, upload.single('avatar'), UserController.updateProfile);
 
 // Получение всех пользователей (возможно, только для админа)
 router.get('/', UserController.getAll);

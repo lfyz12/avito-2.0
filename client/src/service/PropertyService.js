@@ -6,9 +6,27 @@ const PropertyService = {
         return await $authHost.post('/api/property', propertyData);
     },
 
-    // Получение всех объектов недвижимости
-    async getAll() {
-        return await $host.get('/api/property');
+    // Получение всех объектов недвижимости с пагинацией и фильтрацией
+    async getAll(params = {}) {
+        // Преобразование массива удобств в формат, понятный серверу
+        if (params.amenities && Array.isArray(params.amenities)) {
+            params.amenities = params.amenities.join(',');
+        }
+
+        return await $host.get('/api/property', {
+            params: {
+                page: params.page || 1,
+                limit: params.limit || 12,
+                minPrice: params.minPrice,
+                maxPrice: params.maxPrice,
+                type: params.type,
+                rooms: params.rooms,
+                location: params.location,
+                amenities: params.amenities,
+                sortBy: params.sortBy,
+                sortOrder: params.sortOrder,
+            }
+        });
     },
 
     // Получение объекта недвижимости по ID
@@ -29,7 +47,8 @@ const PropertyService = {
     // Получение объектов текущего пользователя
     async getMyProperties() {
         return await $authHost.get('/api/property/my/properties');
-    }
+    },
+
 };
 
 export default PropertyService;
