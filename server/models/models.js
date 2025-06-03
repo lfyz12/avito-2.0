@@ -114,18 +114,6 @@ const Review = sequelize.define('Review', {
     text: DataTypes.TEXT,
 });
 
-const Message = sequelize.define('Message', {
-    id: {
-        type: DataTypes.UUID,
-        defaultValue: DataTypes.UUIDV4,
-        primaryKey: true,
-    },
-    text: DataTypes.TEXT,
-    timestamp: {
-        type: DataTypes.DATE,
-        defaultValue: DataTypes.NOW,
-    },
-});
 
 const Agreement = sequelize.define('Agreement', {
     id: {
@@ -145,18 +133,46 @@ const Agreement = sequelize.define('Agreement', {
 const Chat = sequelize.define('Chat', {
     id: {
         type: DataTypes.INTEGER,
-        autoIncrement: true,
         primaryKey: true,
+        autoIncrement: true,
     },
-    user1Id: DataTypes.INTEGER,
-    user2Id: DataTypes.INTEGER,
 });
 
-Chat.hasMany(Message, { foreignKey: 'chatId' });
+const Message = sequelize.define('Message', {
+    id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true,
+    },
+    textOrPathToFile: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    messageType: {
+        type: DataTypes.STRING,
+    },
+    createdAt: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+    },
+}, {
+    updatedAt: false,
+});
+
+
+
+
+Chat.belongsTo(User, { as: 'user1', foreignKey: 'user1Id' });
+Chat.belongsTo(User, { as: 'user2', foreignKey: 'user2Id' });
+
+// Один чат — много сообщений
+Chat.hasMany(Message, { foreignKey: 'chatId', onDelete: 'CASCADE' });
 Message.belongsTo(Chat, { foreignKey: 'chatId' });
 
-Chat.belongsTo(User, { as: "user1", foreignKey: "user1Id" });
-Chat.belongsTo(User, { as: "user2", foreignKey: "user2Id" });
+// Сообщение отправлено одним пользователем
+User.hasMany(Message, { foreignKey: 'senderId', as: 'sentMessages' });
+Message.belongsTo(User, { as: 'sender', foreignKey: 'senderId' });
+
 
 // Property — владелец
 User.hasMany(Property, { foreignKey: 'ownerId' });
@@ -188,13 +204,9 @@ Review.belongsTo(User, { as: 'author', foreignKey: 'authorId' });
 Property.hasMany(Review, { foreignKey: 'propertyId' });
 Review.belongsTo(Property, { foreignKey: 'propertyId' });
 
-// Messages — от кого и кому
-User.hasMany(Message, { foreignKey: 'fromUserId', as: 'sentMessages' });
-User.hasMany(Message, { foreignKey: 'toUserId', as: 'receivedMessages' });
-
-Message.belongsTo(User, { as: 'sender', foreignKey: 'fromUserId' });
-Message.belongsTo(User, { as: 'receiver', foreignKey: 'toUserId' });
+Chat.belongsTo(Property, { foreignKey: 'propertyId' });
+Property.hasMany(Chat, { foreignKey: 'propertyId' });
 
 module.exports = {
-    User, Property, Token, Review, Message, Booking, Agreement, Like, LikeProperties
+    User, Property, Token, Review, Message, Booking, Agreement, Like, LikeProperties, Chat
 }

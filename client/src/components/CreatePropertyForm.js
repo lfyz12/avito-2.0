@@ -2,8 +2,8 @@
 import React, {useContext, useState} from "react";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import {Context} from "../index";
 import { HOMEROUTER } from "../utils/consts";
+import {Context} from "../index";
 
 const CreatePropertyForm = observer(() => {
     const { propertyStore } = useContext(Context);

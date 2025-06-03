@@ -2,8 +2,8 @@ import React, {useContext, useEffect, useState} from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {HOMEROUTER, LOGINROUTER, REGISTERROUTER} from "../utils/consts";
 import { observer } from "mobx-react-lite";
-import {Context} from "../index";
 import InputMask from 'react-input-mask';
+import {Context} from "../index";
 
 const Auth = observer(() => {
     const { userStore } = useContext(Context);

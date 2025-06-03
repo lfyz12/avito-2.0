@@ -1,7 +1,7 @@
 import React, {useContext, useEffect} from 'react';
 import { observer } from 'mobx-react-lite';
-import {Context} from "../index";
-import PropertyCard from "../components/PropertyCard"; // Предполагается, что у вас есть компонент карточки
+import PropertyCard from "../components/PropertyCard";
+import {Context} from "../index"; // Предполагается, что у вас есть компонент карточки
 
 const Like = observer(() => {
     const { likeStore } = useContext(Context);

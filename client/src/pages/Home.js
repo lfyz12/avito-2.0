@@ -4,10 +4,10 @@ import { observer } from "mobx-react-lite";
 import PropertyCard from "../components/PropertyCard";
 import SearchFilters from "../components/SearchFilters";
 import Carousel from "../components/Carousel";
-import {Context} from "../index";
 import Pagination from "../components/Pagination";
 import SortSelect from "../components/SortSelected";
 import ItemsPerPageSelect from "../components/ItemsPerPageSelect";
+import {Context} from "../index";
 
 const Home = observer(() => {
     const { propertyStore, likeStore } = useContext(Context);

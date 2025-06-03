@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useContext } from 'react';
-import { Context } from '../index';
 import { FaStar, FaStarHalfAlt, FaRegStar, FaUserCircle, FaTrash } from 'react-icons/fa';
 import { format } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import StarRating from "./Review/StarRating";
 import TotalRating from "./Review/TotalRating";
 import AddReview from "./Review/AddReview";
+import {Context} from "../index";
 
 
 

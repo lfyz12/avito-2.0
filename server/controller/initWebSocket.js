@@ -1,79 +1,48 @@
-const { Server } = require("socket.io");
-const { Message, Chat } = require("../models/models");
-const { Op } = require("sequelize");
+const WebSocket = require('ws');
+const { Message, Chat, User } = require('../models/models');
 
-function initWebSocket(server) {
-    const io = new Server(server, {
-        cors: { origin: "*" }
-    });
+const initWebSocket = (server) => {
+    const wss = new WebSocket.Server({ server });
 
-    io.on("connection", (socket) => {
-        console.log("🟢 User connected:", socket.id);
+    wss.on('connection', (ws) => {
+        ws.on('message', async (data) => {
+            try {
+                const { chatId, senderId, content, type } = JSON.parse(data);
 
-        socket.on("join", async (userId) => {
-            socket.userId = userId;
-
-            const chats = await Chat.findAll({
-                where: {
-                    [Op.or]: [
-                        { user1Id: userId },
-                        { user2Id: userId }
-                    ]
-                },
-                attributes: ['id']
-            });
-
-            for (const c of chats) {
-                socket.join(c.id.toString());
-            }
-        });
-
-        socket.on("send_message", async ({ toUserId, text }) => {
-            if (!socket.userId || !toUserId || !text) return;
-
-            let chat = await Chat.findOne({
-                where: {
-                    [Op.or]: [
-                        { user1Id: socket.userId, user2Id: toUserId },
-                        { user1Id: toUserId, user2Id: socket.userId }
-                    ]
-                }
-            });
-
-            if (!chat) {
-                chat = await Chat.create({
-                    user1Id: socket.userId,
-                    user2Id: toUserId,
+                // Сохраняем в БД
+                const newMessage = await Message.create({
+                    chatId,
+                    senderId,
+                    textOrPathToFile: content,
+                    messageType: type || 'text',
                 });
-                socket.join(chat.id.toString());
+
+                // Получаем данные отправителя
+                const sender = await User.findByPk(senderId, {
+                    attributes: ['id', 'name', 'avatar']
+                });
+
+                // Рассылка всем участникам чата
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({
+                            type: 'newMessage',
+                            message: {
+                                ...newMessage.toJSON(),
+                                sender
+                            }
+                        }));
+                    }
+                });
+
+            } catch (e) {
+                console.error('WS Error:', e);
             }
-
-            const message = await Message.create({
-                fromUserId: socket.userId,
-                toUserId,
-                text,
-                chatId: chat.id,
-            });
-
-            io.to(chat.id.toString()).emit("new_message", {
-                fromUserId: socket.userId,
-                text,
-                timestamp: message.timestamp,
-                chatId: chat.id,
-            });
-
-            socket.emit("message_sent", {
-                toUserId,
-                text,
-                chatId: chat.id,
-                timestamp: message.timestamp,
-            });
-        });
-
-        socket.on("disconnect", () => {
-            console.log("🔴 User disconnected:", socket.id);
         });
     });
-}
+
+    console.log('WebSocket Server started');
+    return wss;
+};
 
 module.exports = initWebSocket;

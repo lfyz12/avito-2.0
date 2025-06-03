@@ -5,17 +5,18 @@ import Header from "./components/Header";
 import Footer from "./components/Footer";
 import {useContext, useEffect} from "react";
 import {Context} from "./index";
+import { socket } from './utils/socket';
 
 function App() {
     const { userStore } = useContext(Context);
 
+
+
     useEffect(() => {
         const checkAuth = async () => {
             try {
-
-                await userStore.refresh();
+                await userStore.refresh()
             } catch (error) {
-
                 console.log('Пользователь не авторизован');
             }
         };

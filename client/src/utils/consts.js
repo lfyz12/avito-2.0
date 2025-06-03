@@ -1,5 +1,5 @@
 export const HOMEROUTER = '/'
-export const CATALOGROUTER = '/catalog'
+export const CHATROUTER = '/chat'
 export const PROPERTYROUTER = '/property'
 export const ABOUTROUTER = '/about'
 export const  CONTACTROUTER= '/contact'

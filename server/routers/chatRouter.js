@@ -1,62 +1,30 @@
-const express = require('express');
-const router = express.Router();
-const { Chat, Message, User } = require('../models/models');
-const { Op } = require("sequelize");
+const Router = require('express');
+const chatController = require('../controller/chatController');
+const authMiddleware = require('../middlewares/authMiddleware');
+const upload = require('../middlewares/upload')
+const router = Router.Router();
 
-// Получить все чаты пользователя
-router.get('/:userId', async (req, res) => {
-    const userId = Number(req.params.userId);
-    if (!userId) return res.status(400).json({ error: 'Invalid userId' });
 
-    const chats = await Chat.findAll({
-        where: {
-            [Op.or]: [{ user1Id: userId }, { user2Id: userId }]
-        },
-        include: [
-            { model: User, as: 'user1', attributes: ['id', 'name'] },
-            { model: User, as: 'user2', attributes: ['id', 'name'] },
-        ]
-    });
+// Создание бронирования (только авторизованные пользователи)
+router.post('/', authMiddleware, chatController.createChat);
 
-    res.json(chats);
-});
+router.get('/:userId', authMiddleware, chatController.getChatUsers);
 
-// Получить сообщения чата
-router.get('/:chatId/messages', async (req, res) => {
-    const chatId = Number(req.params.chatId);
-    if (!chatId) return res.status(400).json({ error: 'Invalid chatId' });
+// Получение конкретного бронирования по ID
+router.get('/messages/:chatId', authMiddleware, chatController.getChatMessages);
 
-    const messages = await Message.findAll({
-        where: { chatId },
-        order: [['timestamp', 'ASC']],
-        include: [
-            { model: User, as: 'sender', attributes: ['id', 'name'] },
-            { model: User, as: 'receiver', attributes: ['id', 'name'] },
-        ]
-    });
+router.get('/user/:chatId', authMiddleware, chatController.getChatById);
 
-    res.json(messages);
-});
+router.post(
+    '/upload',
+    upload.single('file'),
+    chatController.uploadFile
+);
 
-// Получить или создать чат
-router.post('/get-or-create', async (req, res) => {
-    const { user1Id, user2Id } = req.body;
-    if (!user1Id || !user2Id) return res.status(400).json({ error: 'user1Id and user2Id required' });
+router.get(
+    '/files/:filename',
+    chatController.getFile
+);
 
-    let chat = await Chat.findOne({
-        where: {
-            [Op.or]: [
-                { user1Id, user2Id },
-                { user1Id: user2Id, user2Id: user1Id }
-            ]
-        }
-    });
-
-    if (!chat) {
-        chat = await Chat.create({ user1Id, user2Id });
-    }
-
-    res.json(chat);
-});
 
 module.exports = router;

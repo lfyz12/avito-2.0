@@ -1,7 +1,6 @@
 // Profile.jsx
 import React, {useState, useContext, useEffect, useRef} from 'react';
 import { observer } from 'mobx-react-lite';
-import { Context } from "../index";
 import {useNavigate, useParams} from "react-router-dom";
 import {HOMEROUTER, PROFILEROUTER} from "../utils/consts";
 import CreatePropertyForm from "../components/CreatePropertyForm";
@@ -9,6 +8,7 @@ import PropertyCard from "../components/PropertyCard";
 import Like from "./Like";
 import OwnerBookings from "../components/OwnerBookings";
 import UserBookings from "../components/UserBookings";
+import {Context} from "../index";
 
 const Profile = observer(() => {
     const [activeTab, setActiveTab] = useState('profile');
@@ -248,12 +248,15 @@ const Profile = observer(() => {
                         </div>
 
                         {/* Мои объявления */}
-                        <div>
+                        {userStore.user.role === "owner" && <div>
                             <h2 className="text-xl font-bold text-gray-900 mb-4">Мои объявления</h2>
                             {propertyStore.myProperties.length > 0 ? (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                                     {propertyStore.myProperties.map(property => (
-                                        <PropertyCard key={property.id} property={property}/>
+                                        <div>
+                                            <PropertyCard key={property.id} property={property}/>
+                                            <button onClick={() => propertyStore.delete(property.id)} className='text-white w-full py-2 bg-red-500 rounded-3xl mt-2 font-medium hover:bg-red-600 '>Удалить</button>
+                                        </div>
                                     ))}
                                 </div>
                             ) : (
@@ -272,7 +275,7 @@ const Profile = observer(() => {
                                     </button>
                                 </div>
                             )}
-                        </div>
+                        </div>}
                     </div>
                 ) : tab === 'like' ?
                     <Like/> : tab === 'owners' ? <OwnerBookings/> : tab === 'clients' ? <UserBookings/> :(

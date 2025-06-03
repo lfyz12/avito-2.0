@@ -20,7 +20,7 @@ root.render(
       reviewStore: new ReviewStore(),
       likeStore: new LikeStore(),
       bookingStore: new BookingStore(),
-      chatStore: new ChatStore()
+      chatStore: new ChatStore(),
   }}>
     <App />
   </Context.Provider>

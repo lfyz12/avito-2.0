@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useRef } from "react";
 import PropertyCard from "./PropertyCard";
 import { observer } from "mobx-react-lite";
-import { Context } from "../index";
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 // Импортируем стили Swiper
@@ -9,6 +8,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
+import {Context} from "../index";
 
 const Carousel = () => {
     const { propertyStore } = useContext(Context);

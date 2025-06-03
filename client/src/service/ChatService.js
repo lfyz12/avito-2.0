@@ -1,44 +1,37 @@
-import { io } from "socket.io-client";
-import { $authHost } from "../http/http";
+import { $authHost } from '../http/http';
 
-class ChatService {
-    socket = null;
+const ChatService = {
+    // Получить все избранные объекты текущего пользователя
+    async createChat(user1Id, user2Id, propertyId) {
+        const { data } = await $authHost.post('/api/chat', {user1Id, user2Id, propertyId});
+        return data;
+    },
 
-    connect(userId) {
-        this.socket = io(process.env.REACT_APP_API_URL || "http://localhost:5000");
-        this.socket.emit("join", userId);
+    // Добавить объект в избранное
+    async getChats(userId) {
+        const { data } = await $authHost.get('/api/chat/' + userId);
+        return data;
+    },
+
+    // Удалить объект из избранного
+    async getMessages(chatId) {
+        const { data } = await $authHost.get(`/api/chat/messages/` + chatId);
+        return data;
+    },
+
+    async getChatyId(chatId) {
+        const { data } = await $authHost.get(`/api/chat/user/` + chatId);
+        return data;
+    },
+
+    async uploadFile(formData) {
+        const { data } = await $authHost.post('/api/chat/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return data;
     }
+};
 
-    sendMessage(toUserId, text) {
-        this.socket?.emit("send_message", { toUserId, text });
-    }
-
-    onNewMessage(callback) {
-        this.socket?.on("new_message", callback);
-    }
-
-    onMessageSent(callback) {
-        this.socket?.on("message_sent", callback);
-    }
-
-    disconnect() {
-        this.socket?.disconnect();
-    }
-
-    async getOrCreateChat(user1Id, user2Id) {
-        const res = await $authHost.post("/api/chat/get-or-create", { user1Id, user2Id });
-        return res.data;
-    }
-
-    async fetchMessages(chatId) {
-        const res = await $authHost.get(`/api/chat/${chatId}/messages`);
-        return res.data;
-    }
-
-    async fetchUserChats(userId) {
-        const res = await $authHost.get(`/api/chat/${userId}`);
-        return res.data;
-    }
-}
-
-export default new ChatService();
+export default ChatService;

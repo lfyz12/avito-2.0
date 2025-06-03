@@ -1,14 +1,16 @@
 // components/property/PriceBox.jsx
 import React, { useContext, useState } from 'react';
 import { FaHeart, FaPhone, FaShareAlt, FaCalendarAlt } from "react-icons/fa";
-import { Context } from "../../index";
 import { observer } from "mobx-react-lite";
 import BookingModal from "../BookingModal";
+import {Context} from "../../index";
+import {useNavigate} from "react-router-dom";
+import {CHATROUTER} from "../../utils/consts";
 
 const PriceBox = ({ property, formatPrice, showPhone, onShow, toggleLike, openChatModal }) => {
     const { likeStore, userStore, chatStore } = useContext(Context);
     const [showBookingModal, setShowBookingModal] = useState(false);
-
+    const navigate = useNavigate()
     const handleBooking = (e) => {
         e.stopPropagation();
         if (!userStore.isAuth) {
@@ -18,9 +20,21 @@ const PriceBox = ({ property, formatPrice, showPhone, onShow, toggleLike, openCh
         setShowBookingModal(true);
     };
 
-    const handleWrite = async () => {
-        await chatStore.startChat(property.ownerId);
-        openChatModal();
+    const handleWrite = async (e) => {
+        e.stopPropagation();
+        try {
+            const chat = await chatStore.createChat(
+                userStore.user.id,
+                property.ownerId,
+                property.id
+            );
+
+            // Перенаправляем на страницу чата с ID
+            navigate(`${CHATROUTER}`);
+        } catch (error) {
+            console.error("Ошибка создания чата:", error);
+            alert("Не удалось создать чат. Попробуйте позже.");
+        }
     };
 
     return (

@@ -1,7 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import { Context } from '../index';
 
 import Slider from "../components/property/Slider";
 import PriceBox from "../components/property/PriceBox";
@@ -10,7 +9,7 @@ import Parameters from "../components/property/Parameters";
 import Amenities from "../components/property/Amenities";
 import OwnerInfo from "../components/property/OwnerInfo";
 import ReviewSection from "../components/ReviewSection";
-import ChatModal from "../components/ChatModal";
+import {Context} from "../index";
 
 const PropertyPage = observer(() => {
     const { id } = useParams();
@@ -186,7 +185,6 @@ const PropertyPage = observer(() => {
                <OwnerInfo onShow={onShow} showPhone={showPhone} property={property}/>
             </div>
             <ReviewSection propertyId={id}/>
-            <ChatModal isOpen={isChatModalOpen} onClose={closeChatModal} />
         </div>
     );
 });

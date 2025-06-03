@@ -2,8 +2,8 @@ import React, {useState, useContext, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { PROPERTYROUTER } from "../utils/consts";
 import LazyImage from "./LazyImage";
-import { Context } from "../index";
 import { observer } from "mobx-react-lite";
+import {Context} from "../index";
 
 const PropertyCard = ({ property }) => {
     const { likeStore } = useContext(Context);

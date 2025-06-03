@@ -1,8 +1,9 @@
-import {HOMEROUTER, LOGINROUTER, PROFILEROUTER, PROPERTYROUTER, REGISTERROUTER} from "./utils/consts";
+import {CHATROUTER, HOMEROUTER, LOGINROUTER, PROFILEROUTER, PROPERTYROUTER, REGISTERROUTER} from "./utils/consts";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import PropertyPage from "./pages/PropertyPage";
+import ChatPage from "./components/chat/ChatPage";
 
 
 export const publicRoutes = [
@@ -37,5 +38,9 @@ export const authRoutes = [
     {
         path: PROFILEROUTER + '/:tab',
         element: <Profile/>
+    },
+    {
+        path: CHATROUTER,
+        element: <ChatPage/>
     },
 ]
