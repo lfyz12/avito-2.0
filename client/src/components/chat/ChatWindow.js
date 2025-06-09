@@ -1,5 +1,5 @@
 // ChatWindow.jsx
-import React, { useEffect, useRef } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Message from './Message';
 import MessageInput from './MessageInput';
 import { Spin, Avatar } from 'antd';
@@ -15,7 +15,7 @@ const ChatWindow = ({
                         loading
                     }) => {
     const messagesEndRef = useRef(null);
-
+    const [selectedFile, setSelectedFile] = useState(false);
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
@@ -31,6 +31,7 @@ const ChatWindow = ({
     const handleFileUpload = e => {
         if (e.target.files[0]) {
             onFileUpload(activeChat.id, e.target.files[0]);
+            setSelectedFile(true)
             e.target.value = null;
         }
     };
@@ -137,6 +138,8 @@ const ChatWindow = ({
             <MessageInput
                 onSend={handleSend}
                 onFileUpload={handleFileUpload}
+                isSelectedFile={selectedFile}
+                resetFile={() => setSelectedFile(false)}
             />
         </div>
     );

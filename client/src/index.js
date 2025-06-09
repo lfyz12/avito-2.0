@@ -8,6 +8,7 @@ import ReviewStore from "./store/ReviewStore";
 import LikeStore from "./store/LikeStore";
 import BookingStore from "./store/BookingStore";
 import ChatStore from "./store/ChatStore";
+import AgreementStore from "./store/AgreementStore";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -21,6 +22,7 @@ root.render(
       likeStore: new LikeStore(),
       bookingStore: new BookingStore(),
       chatStore: new ChatStore(),
+      agreementStore: new AgreementStore()
   }}>
     <App />
   </Context.Provider>

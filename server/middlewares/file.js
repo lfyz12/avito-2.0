@@ -1,22 +1,14 @@
-const { unlink } = require('fs/promises')
-const { dirname, join } = require('path')
-const { fileURLToPath } = require('url')
-const ApiError = require('../Error/ApiError')
+const multer = require('multer');
+const path = require('path');
 
-// путь к текущей директории
-const _dirname = dirname(fileURLToPath(import.meta.url))
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => cb(null, path.resolve(__dirname, '..', 'static', 'chat')),
+    filename: (req, file, cb) => {
+        const uniqueName = Date.now() + '-' + file.originalname;
+        cb(null, uniqueName);
+    },
+});
 
-// путь к директории с файлами
-const fileDir = join(_dirname, '../static')
+const upload = multer({ storage });
 
-// утилита для получения пути к файлу
-export const getFilePath = (filePath) => join(fileDir, filePath)
-
-// утилита для удаления файла
-export const removeFile = async (filePath) => {
-    try {
-        await unlink(join(fileDir, filePath))
-    } catch (e) {
-        new ApiError.badRequest(e.message)
-    }
-}
+module.exports = upload;

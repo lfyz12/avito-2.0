@@ -9,6 +9,11 @@ const app = express() //Объект приложения
 const errorHandler = require('./middlewares/errorMiddleware') //Инициализация еррорхендлера
 const path = require('path')
 const cookieParser = require('cookie-parser')
+const Handlebars = require('handlebars');
+const bodyParser = require('body-parser');
+const fs = require('fs');
+const { v4: uuidv4 } = require('uuid');
+const puppeteer = require('puppeteer');
 const {Server} = require("socket.io");
 const initWebSocket = require("./controller/initWebSocket");
 const corsOptions ={
@@ -21,10 +26,12 @@ app.use(cors(corsOptions));
 app.use(cookieParser())
 app.use(express.json())  //Это чтобы приложение могло парсить json формат
 app.use('/static', express.static(path.resolve(__dirname, 'static')));
-
 app.use('/static/chat', express.static(path.resolve(__dirname, 'static', 'chat')));
 
+
 app.use('/api', router)
+
+
 
 
 
@@ -34,34 +41,8 @@ app.use(errorHandler)
 
 const server = require('http').createServer(app)
 
-initWebSocket(server);
-// const io = require('socket.io')(server, {
-//     cors: {
-//         origin: "http://localhost:3000"
-//     },
-//     path: "/webSocket/"
-// })
+initWebSocket(server, app);
 
-// const io = new Server(server, {
-//     cors: { origin: '*' },
-// });
-//
-// io.on('connection', socket => {
-//     console.log('Пользователь подключился:', socket.id);
-//
-//     socket.on('join', ({ chatId }) => {
-//         socket.join(`chat_${chatId}`);
-//     });
-//
-//     socket.on('sendMessage', async ({ chatId, senderId, text }) => {
-//         const message = await Message.create({ chatId, senderId, text });
-//         io.to(`chat_${chatId}`).emit('newMessage', { message });
-//     });
-//
-//     socket.on('disconnect', () => {
-//         console.log('Пользователь отключился:', socket.id);
-//     });
-// });
 
 
 //Запуск сервера
@@ -77,3 +58,6 @@ const start = async () => {
 
 
 start()
+
+
+

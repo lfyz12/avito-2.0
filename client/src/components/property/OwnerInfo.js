@@ -12,7 +12,7 @@ const OwnerInfo = ({property, showPhone, onShow}) => {
                 <div className="flex items-center mb-6">
                     <div className="w-16 h-16 bg-gray-200 border-2 border-dashed rounded-full">
                         <img
-                            src={process.env.REACT_APP_API_URL + 'static/' + userStore.user.avatar}
+                            src={process.env.REACT_APP_API_URL + 'static/' + property.owner.avatar}
                             alt="Аватар"
                             className="w-full h-full rounded-full object-cover border-4 border-white shadow-lg"
                         />

@@ -25,7 +25,7 @@ const ChatService = {
     },
 
     async uploadFile(formData) {
-        const { data } = await $authHost.post('/api/chat/upload', formData, {
+        const { data } = await $authHost.post('/api/chat/file', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
             }

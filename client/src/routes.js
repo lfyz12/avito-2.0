@@ -1,9 +1,20 @@
-import {CHATROUTER, HOMEROUTER, LOGINROUTER, PROFILEROUTER, PROPERTYROUTER, REGISTERROUTER} from "./utils/consts";
+import {
+    AGREEMENTROUTER,
+    CHATROUTER,
+    CONTRACTROUTER,
+    HOMEROUTER,
+    LOGINROUTER,
+    PROFILEROUTER,
+    PROPERTYROUTER,
+    REGISTERROUTER
+} from "./utils/consts";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import PropertyPage from "./pages/PropertyPage";
 import ChatPage from "./components/chat/ChatPage";
+import ContractGenerator from "./pages/ContractGenerator";
+import AgreementPage from "./pages/AgreementPage";
 
 
 export const publicRoutes = [
@@ -42,5 +53,9 @@ export const authRoutes = [
     {
         path: CHATROUTER,
         element: <ChatPage/>
+    },
+    {
+        path: AGREEMENTROUTER + '/:bookingId',
+        element: <AgreementPage/>
     },
 ]

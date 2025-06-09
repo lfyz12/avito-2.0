@@ -1,67 +1,62 @@
-import { makeAutoObservable } from "mobx";
-import AgreementService from "../service/AgreementService";
+import { makeAutoObservable } from 'mobx';
+import AgreementService from '../service/AgreementService';
+
+
 
 export default class AgreementStore {
-    agreement = null; // текущий договор
+    agreement = null;
     isLoading = false;
-    error = null;
+    error= null;
 
     constructor() {
         makeAutoObservable(this);
     }
 
-    // Получить договор по ID бронирования
-    async fetchByBooking(bookingId) {
+    async createAgreement(bookingId) {
         this.isLoading = true;
         this.error = null;
-
         try {
-            const response = await AgreementService.getByBooking(bookingId);
-            this.agreement = response.data;
-        } catch (err) {
-            this.error = err.response?.data?.message || "Ошибка при загрузке договора";
-            this.agreement = null;
+            const res = await AgreementService.createAgreement(bookingId);
+            this.agreement = res.data;
+        } catch (e) {
+            this.error = e.response?.data?.message || 'Ошибка при создании договора';
         } finally {
             this.isLoading = false;
         }
     }
 
-    // Получить договор по ID
-    async fetchById(id) {
+    async fetchAgreementByBooking(bookingId) {
         this.isLoading = true;
         this.error = null;
-
         try {
-            const response = await AgreementService.getOne(id);
-            this.agreement = response.data;
-        } catch (err) {
-            this.error = err.response?.data?.message || "Ошибка при загрузке договора";
-            this.agreement = null;
+            const res = await AgreementService.getAgreementByBooking(bookingId);
+            this.agreement = res.data;
+        } catch (e) {
+            this.error = e.response?.data?.message || 'Ошибка при загрузке договора';
         } finally {
             this.isLoading = false;
         }
     }
 
-    // Создать договор
-    async createAgreement(bookingId, document) {
-        this.isLoading = true;
-        this.error = null;
+    async downloadAgreement() {
+        if (!this.agreement) return;
 
         try {
-            const response = await AgreementService.create({ bookingId, document });
-            this.agreement = response.data;
-        } catch (err) {
-            this.error = err.response?.data?.message || "Ошибка при создании договора";
-        } finally {
-            this.isLoading = false;
+            const blob = await AgreementService.downloadAgreement(this.agreement.id);
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = this.agreement.document;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } catch (e) {
+            console.error('Ошибка при скачивании договора', e);
         }
     }
 
-    // Очистить данные
     clear() {
         this.agreement = null;
         this.error = null;
-        this.isLoading = false;
     }
 }
-

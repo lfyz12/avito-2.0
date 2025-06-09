@@ -6,6 +6,7 @@ const router = new Router();
 router.post('/', AgreementController.create);
 router.get('/:id', AgreementController.getOne);
 router.get('/booking/:bookingId', AgreementController.getByBooking);
-router.delete('/:id', AgreementController.delete); // по желанию
+router.get('/download/:id', AgreementController.download);
+
 
 module.exports = router;

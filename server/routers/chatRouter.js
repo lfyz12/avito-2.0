@@ -1,7 +1,7 @@
 const Router = require('express');
 const chatController = require('../controller/chatController');
 const authMiddleware = require('../middlewares/authMiddleware');
-const upload = require('../middlewares/upload')
+const file = require('../middlewares/file')
 const router = Router.Router();
 
 
@@ -15,11 +15,7 @@ router.get('/messages/:chatId', authMiddleware, chatController.getChatMessages);
 
 router.get('/user/:chatId', authMiddleware, chatController.getChatById);
 
-router.post(
-    '/upload',
-    upload.single('file'),
-    chatController.uploadFile
-);
+router.post('/file', file.single('file'), chatController.uploadFile);
 
 router.get(
     '/files/:filename',

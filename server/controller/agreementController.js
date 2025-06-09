@@ -1,30 +1,69 @@
-const { Agreement, Booking } = require('../models/models');
-
+const { Agreement, Booking, Property, User } = require('../models/models');
+const generateAgreementFile = require('../utils/generateAgreement');
+const path = require('path');
+const fs = require('fs');
 class AgreementController {
     // Создание договора по бронированию
     static async create(req, res) {
         try {
-            const { bookingId, document } = req.body;
+            const { bookingId } = req.body;
 
-            // Проверка, существует ли такая бронь
-            const booking = await Booking.findByPk(bookingId);
+            const booking = await Booking.findByPk(bookingId, {
+                include: [{ model: User, as: 'client' }, { model: Property, include: [{ model: User, as: 'owner' }] }]
+            });
+
             if (!booking) {
                 return res.status(404).json({ message: 'Бронирование не найдено' });
             }
 
-            // Проверка, что договор ещё не создан
             const existing = await Agreement.findOne({ where: { bookingId } });
             if (existing) {
-                return res.status(400).json({ message: 'Договор уже существует для этого бронирования' });
+                return res.status(400).json({ message: 'Договор уже существует' });
             }
 
-            const agreement = await Agreement.create({ bookingId, document });
+            const fileName = `agreement-${bookingId}.docx`;
+
+            await generateAgreementFile({
+                clientName: booking.client.name,
+                ownerName: booking.Property.owner.name,
+                propertyTitle: booking.Property.title,
+                startDate: booking.startDate,
+                endDate: booking.endDate,
+                totalPrice: booking.totalPrice,
+                fileName
+            });
+
+            const agreement = await Agreement.create({
+                bookingId,
+                document: fileName
+            });
+
             res.status(201).json(agreement);
+
         } catch (error) {
             console.error('Agreement create error:', error);
             res.status(500).json({ message: 'Ошибка при создании договора' });
         }
     }
+
+
+
+    static async download(req, res) {
+        try {
+            const { id } = req.params;
+            const agreement = await Agreement.findByPk(id);
+            if (!agreement) return res.status(404).json({ message: 'Договор не найден' });
+
+            const filePath = path.join(__dirname, '../static', agreement.document);
+            if (!fs.existsSync(filePath)) return res.status(404).json({ message: 'Файл не найден' });
+
+            res.download(filePath, agreement.document);
+        } catch (error) {
+            console.error('Agreement download error:', error);
+            res.status(500).json({ message: 'Ошибка при скачивании' });
+        }
+    }
+
 
     // Получить договор по ID
     static async getOne(req, res) {

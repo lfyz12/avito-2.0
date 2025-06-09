@@ -93,22 +93,40 @@ class ChatController {
             res.status(500).json({ error: error.message });
         }
     };
+
     async uploadFile(req, res, next) {
         try {
             const { chatId, senderId } = req.body;
-            const file = req.files?.file;
+            const file = req.file;
 
             if (!file) {
-                return next(ApiError.badRequest('File not provided'));
+                return next(ApiError.badRequest('Файл не был предоставлен'));
             }
 
-
-            // Сохраняем запись в БД
+            // Сохраняем сообщение в БД
             const message = await Message.create({
                 chatId,
                 senderId,
-                textOrPathToFile: fileName,
+                textOrPathToFile: file.filename,
                 messageType: 'file',
+            });
+
+            // Получаем отправителя
+            const sender = await User.findByPk(senderId, {
+                attributes: ['id', 'name', 'avatar']
+            });
+
+            // Отправляем сообщение через WebSocket
+            req.app.get('wss').clients.forEach(client => {
+                if (client.readyState === 1) {
+                    client.send(JSON.stringify({
+                        type: 'newMessage',
+                        message: {
+                            ...message.toJSON(),
+                            sender
+                        }
+                    }));
+                }
             });
 
             return res.json(message);
@@ -116,6 +134,7 @@ class ChatController {
             next(ApiError.internal(e.message));
         }
     }
+
 
     async getFile(req, res, next) {
         try {

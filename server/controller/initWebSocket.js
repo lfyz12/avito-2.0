@@ -1,9 +1,10 @@
 const WebSocket = require('ws');
 const { Message, Chat, User } = require('../models/models');
 
-const initWebSocket = (server) => {
+const initWebSocket = (server, app) => {
     const wss = new WebSocket.Server({ server });
 
+    app.set('wss', wss);
     wss.on('connection', (ws) => {
         ws.on('message', async (data) => {
             try {
